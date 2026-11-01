@@ -6,6 +6,8 @@ If a field cannot be determined, use null. Return ONLY the JSON, no markdown fen
 
 const IDEAS_SYSTEM_PROMPT = `You are a creative Indian event planner. Given an event plan, suggest 5 unique, budget-appropriate ideas tailored for India. Return ONLY a JSON array of { "idea": "string", "category": "string", "estimatedCost": "string" }. No markdown fences.`;
 
+const CHAT_SYSTEM_PROMPT = `You are RevelPlan, a friendly Indian event planning assistant. Help users plan weddings, birthdays, and community events in India. Give practical, budget-conscious advice. Keep responses concise and actionable.`;
+
 function getModel(systemInstruction) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -60,11 +62,26 @@ async function generateIdeas(eventPlan) {
   return parseJsonWithRepair(responseText, ']');
 }
 
+async function generateChatResponse(userMessage) {
+  const model = getModel(CHAT_SYSTEM_PROMPT);
+  try {
+    return await model.generateContentStream(userMessage);
+  } catch (err) {
+    if (err.message && err.message.includes('503')) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return await model.generateContentStream(userMessage);
+    }
+    throw err;
+  }
+}
+
 module.exports = {
   parseEventIntake,
   generateIdeas,
+  generateChatResponse,
   stripMarkdownFences,
   parseJsonWithRepair,
   INTAKE_SYSTEM_PROMPT,
   IDEAS_SYSTEM_PROMPT,
+  CHAT_SYSTEM_PROMPT,
 };

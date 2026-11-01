@@ -8,11 +8,24 @@ const fetch = require('node-fetch');
 const { calculateBudget } = require('./src/budgetEngine');
 const { generateTimeline } = require('./src/timelineEngine');
 const { getVendorChecklist } = require('./src/vendorChecklist');
-const { parseEventIntake, generateIdeas } = require('./src/geminiService');
+const { parseEventIntake, generateIdeas, generateChatResponse } = require('./src/geminiService');
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+      },
+    },
+  })
+);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -131,6 +144,40 @@ app.get('/api/places', async (req, res) => {
     res.json(places);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/chat', async (req, res) => {
+  const { message } = req.query || {};
+  if (!message) {
+    return res.status(400).json({ error: 'message is required' });
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  if (typeof res.flushHeaders === 'function') {
+    res.flushHeaders();
+  }
+
+  if (!process.env.GEMINI_API_KEY) {
+    res.write(`data: ${JSON.stringify({ error: 'AI features not available' })}\n\n`);
+    return res.end();
+  }
+
+  try {
+    const streamResult = await generateChatResponse(message);
+    for await (const chunk of streamResult.stream) {
+      const chunkText = chunk.text();
+      if (chunkText) {
+        res.write(`data: ${JSON.stringify({ chunk: chunkText })}\n\n`);
+      }
+    }
+    res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+    res.end();
+  } catch (err) {
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+    res.end();
   }
 });
 
