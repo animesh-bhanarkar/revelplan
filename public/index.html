@@ -731,7 +731,7 @@
     }
 
     // Step 4: Streaming Chat Assistant (SSE)
-    // NOTE: Chat HTML elements live AFTER this </script> tag in the DOM,
+    // NOTE: Chat HTML elements are declared after the closing script tag in the DOM,
     // so we defer all chat wiring until DOMContentLoaded fires.
     document.addEventListener('DOMContentLoaded', () => {
       const chatBubbleBtn = document.getElementById('chatBubbleBtn');
