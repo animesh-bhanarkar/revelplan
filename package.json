@@ -19,9 +19,11 @@
   },
   "homepage": "https://github.com/animesh-bhanarkar/revelplan#readme",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.2",
-    "helmet": "^8.3.0"
+    "helmet": "^8.3.0",
+    "node-fetch": "^2.7.0"
   }
 }
