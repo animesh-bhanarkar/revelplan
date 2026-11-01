@@ -731,112 +731,152 @@
     }
 
     // Step 4: Streaming Chat Assistant (SSE)
-    const chatBubbleBtn = document.getElementById('chatBubbleBtn');
-    const chatPanel = document.getElementById('chatPanel');
-    const closeChatBtn = document.getElementById('closeChatBtn');
-    const chatForm = document.getElementById('chatForm');
-    const chatInput = document.getElementById('chatInput');
-    const chatMessages = document.getElementById('chatMessages');
-    const sendChatBtn = document.getElementById('sendChatBtn');
+    // NOTE: Chat HTML elements live AFTER this </script> tag in the DOM,
+    // so we defer all chat wiring until DOMContentLoaded fires.
+    document.addEventListener('DOMContentLoaded', () => {
+      const chatBubbleBtn = document.getElementById('chatBubbleBtn');
+      const chatPanel     = document.getElementById('chatPanel');
+      const closeChatBtn  = document.getElementById('closeChatBtn');
+      const chatForm      = document.getElementById('chatForm');
+      const chatInput     = document.getElementById('chatInput');
+      const chatMessages  = document.getElementById('chatMessages');
+      const sendChatBtn   = document.getElementById('sendChatBtn');
 
-    let activeEventSource = null;
-
-    chatBubbleBtn.addEventListener('click', () => {
-      chatPanel.classList.remove('translate-x-full');
-      chatInput.focus();
-    });
-
-    closeChatBtn.addEventListener('click', () => {
-      chatPanel.classList.add('translate-x-full');
-    });
-
-    function appendUserMessage(text) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'flex items-end justify-end';
-      wrapper.innerHTML = `
-        <div class="bg-saffron-500 text-white rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-[85%] leading-relaxed shadow-sm text-sm">
-          ${escapeHtml(text)}
-        </div>
-      `;
-      chatMessages.appendChild(wrapper);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function createAssistantBubble() {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'flex items-start gap-2 max-w-[88%]';
-      wrapper.innerHTML = `
-        <div class="w-6 h-6 rounded-full bg-saffron-100 text-saffron-700 flex-shrink-0 flex items-center justify-center text-xs mt-1" aria-hidden="true">
-          🎉
-        </div>
-        <div class="assistant-content bg-gray-100 text-gray-800 rounded-2xl rounded-tl-sm px-4 py-2.5 leading-relaxed text-sm whitespace-pre-wrap"></div>
-      `;
-      chatMessages.appendChild(wrapper);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      return wrapper.querySelector('.assistant-content');
-    }
-
-    chatForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const message = chatInput.value.trim();
-      if (!message) return;
-
-      if (activeEventSource) {
-        activeEventSource.close();
-        activeEventSource = null;
+      // Guard: bail early if any element is missing (safety net)
+      if (!chatBubbleBtn || !chatPanel || !chatForm) {
+        console.error('RevelPlan chat: one or more required DOM elements not found.');
+        return;
       }
 
-      appendUserMessage(message);
-      chatInput.value = '';
-      sendChatBtn.disabled = true;
+      let activeEventSource = null;
 
-      const assistantBubble = createAssistantBubble();
-      assistantBubble.textContent = 'Thinking...';
+      function openChat() {
+        chatPanel.classList.remove('translate-x-full');
+        chatPanel.setAttribute('aria-modal', 'true');
+        chatInput.focus();
+      }
 
-      const sseUrl = `/api/chat?message=${encodeURIComponent(message)}`;
-      const es = new EventSource(sseUrl);
-      activeEventSource = es;
-      let hasReceivedFirstToken = false;
+      function closeChat() {
+        chatPanel.classList.add('translate-x-full');
+        chatPanel.setAttribute('aria-modal', 'false');
+        if (activeEventSource) {
+          activeEventSource.close();
+          activeEventSource = null;
+        }
+      }
 
-      es.onmessage = (event) => {
+      chatBubbleBtn.addEventListener('click', openChat);
+      closeChatBtn.addEventListener('click', closeChat);
+
+      // Close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !chatPanel.classList.contains('translate-x-full')) {
+          closeChat();
+        }
+      });
+
+      function appendUserMessage(text) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-end justify-end';
+        wrapper.innerHTML = `
+          <div class="bg-saffron-500 text-white rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-[85%] leading-relaxed shadow-sm text-sm">
+            ${escapeHtml(text)}
+          </div>
+        `;
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function createAssistantBubble() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-start gap-2 max-w-[88%]';
+        wrapper.innerHTML = `
+          <div class="w-6 h-6 rounded-full bg-saffron-100 text-saffron-700 flex-shrink-0 flex items-center justify-center text-xs mt-1" aria-hidden="true">
+            🎉
+          </div>
+          <div class="assistant-content bg-gray-100 text-gray-800 rounded-2xl rounded-tl-sm px-4 py-2.5 leading-relaxed text-sm whitespace-pre-wrap"></div>
+        `;
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return wrapper.querySelector('.assistant-content');
+      }
+
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Close any existing stream before starting a new one
+        if (activeEventSource) {
+          activeEventSource.close();
+          activeEventSource = null;
+        }
+
+        appendUserMessage(message);
+        chatInput.value = '';
+        sendChatBtn.disabled = true;
+
+        const assistantBubble = createAssistantBubble();
+        assistantBubble.textContent = 'Thinking…';
+
+        // Build SSE URL — relative path works for both localhost and Cloud Run
+        const sseUrl = `/api/chat?message=${encodeURIComponent(message)}`;
+        let es;
         try {
-          const data = JSON.parse(event.data);
-          if (data.error) {
-            if (!hasReceivedFirstToken) assistantBubble.textContent = '';
-            assistantBubble.textContent += ` [Error: ${data.error}]`;
-            es.close();
-            activeEventSource = null;
-            sendChatBtn.disabled = false;
-            return;
-          }
-          if (data.done) {
-            es.close();
-            activeEventSource = null;
-            sendChatBtn.disabled = false;
-            return;
-          }
-          if (data.chunk) {
-            if (!hasReceivedFirstToken) {
-              assistantBubble.textContent = '';
-              hasReceivedFirstToken = true;
-            }
-            assistantBubble.textContent += data.chunk;
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-          }
-        } catch (parseErr) {
-          console.error('Error parsing SSE event:', parseErr);
-        }
-      };
-
-      es.onerror = () => {
-        if (!hasReceivedFirstToken) {
+          es = new EventSource(sseUrl);
+        } catch (initErr) {
+          console.error('EventSource init failed:', initErr);
           assistantBubble.textContent = 'Unable to connect to assistant. Please try again.';
+          sendChatBtn.disabled = false;
+          return;
         }
-        es.close();
-        activeEventSource = null;
-        sendChatBtn.disabled = false;
-      };
-    });
+        activeEventSource = es;
+        let hasReceivedFirstToken = false;
+
+        es.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+
+            if (data.error) {
+              if (!hasReceivedFirstToken) assistantBubble.textContent = '';
+              assistantBubble.textContent += `[Error: ${data.error}]`;
+              es.close();
+              activeEventSource = null;
+              sendChatBtn.disabled = false;
+              return;
+            }
+
+            if (data.done) {
+              es.close();
+              activeEventSource = null;
+              sendChatBtn.disabled = false;
+              return;
+            }
+
+            if (data.chunk !== undefined) {
+              if (!hasReceivedFirstToken) {
+                assistantBubble.textContent = '';
+                hasReceivedFirstToken = true;
+              }
+              assistantBubble.textContent += data.chunk;
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+          } catch (parseErr) {
+            console.error('RevelPlan chat: SSE parse error:', parseErr, 'raw:', event.data);
+          }
+        };
+
+        es.onerror = (errEvent) => {
+          console.error('RevelPlan chat: EventSource error:', errEvent);
+          if (!hasReceivedFirstToken) {
+            assistantBubble.textContent = 'Unable to connect to assistant. Please try again.';
+          }
+          es.close();
+          activeEventSource = null;
+          sendChatBtn.disabled = false;
+        };
+      });
+    }); // end DOMContentLoaded
   </script>
 
   <!-- Chat Floating Button -->
