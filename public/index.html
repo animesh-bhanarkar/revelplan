@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RevelPlan is an AI-powered celebration and event planning assistant for Indian weddings, birthdays, and community events with budget calculators, backward timelines, and vendor discovery.">
+  <meta name="theme-color" content="#F97316">
   <title>RevelPlan — AI-Powered Celebration Planner for India</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,18 +47,39 @@
       background-color: #cbd5e1;
       border-radius: 9999px;
     }
+    @media (prefers-reduced-motion: no-preference) {
+      html {
+        scroll-behavior: smooth;
+      }
+      .transition {
+        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto !important;
+      }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-white text-gray-900 antialiased min-h-screen flex flex-col justify-between">
 
   <!-- Toast Container -->
-  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full px-4 pointer-events-none"></div>
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full px-4 pointer-events-none" aria-live="assertive" aria-atomic="true"></div>
 
   <!-- Header Navigation -->
   <header class="border-b border-orange-100 bg-white/90 backdrop-blur sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-      <a href="#" class="flex items-center gap-2 font-bold text-2xl tracking-tight text-gray-900">
-        <span class="text-3xl">🎉</span>
+      <a href="#" class="flex items-center gap-2 font-bold text-2xl tracking-tight text-gray-900" aria-label="RevelPlan Home">
+        <span class="text-3xl" aria-hidden="true">🎉</span>
         <span>Revel<span class="text-saffron-500">Plan</span></span>
       </a>
       <span class="text-xs md:text-sm font-medium px-3 py-1 rounded-full bg-saffron-50 text-saffron-700 border border-saffron-200">
@@ -67,7 +90,7 @@
 
   <main class="flex-grow">
     <!-- SECTION 1: HERO + INTAKE FORM -->
-    <section id="sectionHero" class="pt-12 pb-20 px-4 max-w-4xl mx-auto text-center">
+    <section id="sectionHero" role="region" aria-label="Event Description Intake" class="pt-12 pb-20 px-4 max-w-4xl mx-auto text-center">
       <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-saffron-700 text-xs md:text-sm font-semibold mb-6">
         <span>✨ Seamless Indian Event Planning with GenAI</span>
       </div>
@@ -96,11 +119,12 @@
           <button
             id="btnPlanEvent"
             type="button"
+            aria-label="Plan My Event"
             class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-saffron-500 hover:bg-saffron-600 text-white font-semibold px-8 py-3.5 rounded-xl shadow-lg shadow-saffron-500/25 transition active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <span>Plan My Event →</span>
-            <span id="intakeSpinner" class="hidden">
-              <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <span id="intakeSpinner" class="hidden" role="status" aria-live="polite" aria-label="Loading">
+              <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -111,7 +135,7 @@
     </section>
 
     <!-- SECTION 2: EVENT SUMMARY CARDS -->
-    <section id="sectionSummary" class="hidden py-16 px-4 bg-orange-50/50 border-y border-orange-100">
+    <section id="sectionSummary" role="region" aria-label="Event Overview Summary" class="hidden py-16 px-4 bg-orange-50/50 border-y border-orange-100">
       <div class="max-w-5xl mx-auto">
         <div class="text-center mb-10">
           <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Event Overview</h2>
@@ -121,7 +145,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10">
           <!-- Card 1: Event Type -->
           <div class="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm flex flex-col items-center text-center">
-            <div class="w-12 h-12 rounded-xl bg-orange-100 text-saffron-600 flex items-center justify-center text-2xl mb-3">
+            <div class="w-12 h-12 rounded-xl bg-orange-100 text-saffron-600 flex items-center justify-center text-2xl mb-3" aria-hidden="true">
               🎪
             </div>
             <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</span>
@@ -130,7 +154,7 @@
 
           <!-- Card 2: Guest Count -->
           <div class="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm flex flex-col items-center text-center">
-            <div class="w-12 h-12 rounded-xl bg-orange-100 text-saffron-600 flex items-center justify-center text-2xl mb-3">
+            <div class="w-12 h-12 rounded-xl bg-orange-100 text-saffron-600 flex items-center justify-center text-2xl mb-3" aria-hidden="true">
               👥
             </div>
             <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Guest Count</span>
@@ -139,7 +163,7 @@
 
           <!-- Card 3: Budget Tier -->
           <div class="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm flex flex-col items-center text-center">
-            <div class="w-12 h-12 rounded-xl bg-orange-100 text-saffron-600 flex items-center justify-center text-2xl mb-3">
+            <div class="w-12 h-12 rounded-xl bg-orange-100 text-saffron-600 flex items-center justify-center text-2xl mb-3" aria-hidden="true">
               💰
             </div>
             <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Budget Tier</span>
@@ -148,7 +172,7 @@
 
           <!-- Card 4: City -->
           <div class="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm flex flex-col items-center text-center">
-            <div class="w-12 h-12 rounded-xl bg-orange-100 text-saffron-600 flex items-center justify-center text-2xl mb-3">
+            <div class="w-12 h-12 rounded-xl bg-orange-100 text-saffron-600 flex items-center justify-center text-2xl mb-3" aria-hidden="true">
               📍
             </div>
             <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">City</span>
@@ -160,11 +184,12 @@
           <button
             id="btnGetPlan"
             type="button"
+            aria-label="Generate Full Event Plan"
             class="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-semibold px-10 py-4 rounded-xl shadow-lg transition active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <span>Get My Plan →</span>
-            <span id="planSpinner" class="hidden">
-              <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <span id="planSpinner" class="hidden" role="status" aria-live="polite" aria-label="Loading">
+              <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -175,14 +200,14 @@
     </section>
 
     <!-- SECTION 3: FULL PLAN -->
-    <section id="sectionPlan" class="hidden py-16 px-4 max-w-6xl mx-auto space-y-16">
+    <section id="sectionPlan" role="region" aria-label="Full Event Plan Breakdown" class="hidden py-16 px-4 max-w-6xl mx-auto space-y-16">
       
       <!-- 3A: Budget Split -->
       <div>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-100 mb-6 gap-2">
           <div>
             <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <span>💳</span> Comprehensive Budget Breakdown
+              <span aria-hidden="true">💳</span> Comprehensive Budget Breakdown
             </h2>
             <p class="text-sm text-gray-500 mt-0.5">Calculated based on event category, headcount, city tier, and budget tier</p>
           </div>
@@ -218,7 +243,7 @@
       <div>
         <div class="pb-4 border-b border-gray-100 mb-6">
           <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <span>📅</span> Backward Milestone Timeline
+            <span aria-hidden="true">📅</span> Backward Milestone Timeline
           </h2>
           <p class="text-sm text-gray-500 mt-0.5">Every key milestone calculated backward from your celebration date</p>
         </div>
@@ -232,7 +257,7 @@
       <div>
         <div class="pb-4 border-b border-gray-100 mb-6">
           <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <span>📋</span> Curated Vendor Checklist
+            <span aria-hidden="true">📋</span> Curated Vendor Checklist
           </h2>
           <p class="text-sm text-gray-500 mt-0.5">Essential and recommended vendors with actionable booking tips</p>
         </div>
@@ -246,7 +271,7 @@
       <div>
         <div class="pb-4 border-b border-gray-100 mb-6">
           <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <span>💡</span> Personalized Creative Ideas
+            <span aria-hidden="true">💡</span> Personalized Creative Ideas
           </h2>
           <p class="text-sm text-gray-500 mt-0.5">Bespoke, budget-conscious concepts tailored for Indian celebrations by Gemini</p>
         </div>
@@ -265,11 +290,12 @@
         <button
           id="btnFindVendors"
           type="button"
+          aria-label="Find Vendors Near Me"
           class="inline-flex items-center justify-center gap-2 bg-white text-saffron-600 hover:bg-orange-50 font-bold px-8 py-4 rounded-xl shadow-md transition active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <span>Find Vendors Near Me →</span>
-          <span id="placesSpinner" class="hidden">
-            <svg class="animate-spin h-5 w-5 text-saffron-600" fill="none" viewBox="0 0 24 24">
+          <span id="placesSpinner" class="hidden" role="status" aria-live="polite" aria-label="Loading">
+            <svg class="animate-spin h-5 w-5 text-saffron-600" fill="none" viewBox="0 0 24 24" aria-hidden="true">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -279,7 +305,7 @@
     </section>
 
     <!-- SECTION 4: NEARBY VENDORS (PLACES API) -->
-    <section id="sectionVendors" class="hidden py-16 px-4 bg-gray-50 border-t border-gray-200">
+    <section id="sectionVendors" role="region" aria-label="Nearby Vendors Discovery" class="hidden py-16 px-4 bg-gray-50 border-t border-gray-200">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-10">
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-saffron-700 text-xs font-semibold mb-2">
@@ -345,6 +371,8 @@
     // Toast Notification Utility
     function showToast(message, isError = true) {
       const toast = document.createElement('div');
+      toast.setAttribute('role', isError ? 'alert' : 'status');
+      toast.setAttribute('aria-live', isError ? 'assertive' : 'polite');
       toast.className = `pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-lg border text-sm font-medium transition transform duration-300 translate-y-2 opacity-0 ${
         isError
           ? 'bg-red-50 text-red-800 border-red-200'
@@ -353,10 +381,10 @@
 
       toast.innerHTML = `
         <div class="flex items-center gap-2">
-          <span>${isError ? '⚠️' : '✅'}</span>
+          <span aria-hidden="true">${isError ? '⚠️' : '✅'}</span>
           <span>${escapeHtml(message)}</span>
         </div>
-        <button class="ml-4 text-gray-400 hover:text-gray-700 text-lg leading-none">&times;</button>
+        <button type="button" aria-label="Dismiss alert" class="ml-4 text-gray-400 hover:text-gray-700 text-lg leading-none">&times;</button>
       `;
 
       toast.querySelector('button').addEventListener('click', () => {
@@ -494,7 +522,6 @@
         if (ideasRes.ok && Array.isArray(ideasData)) {
           renderIdeas(ideasData);
         } else {
-          // Graceful fallback if Gemini ideas hit quota or key failure
           renderIdeasFallback();
         }
 
@@ -522,13 +549,13 @@
         tr.className = 'hover:bg-orange-50/40 transition';
         tr.innerHTML = `
           <td class="px-6 py-4 font-semibold text-gray-800 capitalize flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-saffron-500 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-saffron-500 inline-block" aria-hidden="true"></span>
             ${escapeHtml(category)}
           </td>
           <td class="px-6 py-4 font-medium text-gray-900">${formatCurrency(amount)}</td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-3">
-              <div class="w-24 bg-gray-100 rounded-full h-2 overflow-hidden">
+              <div class="w-24 bg-gray-100 rounded-full h-2 overflow-hidden" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
                 <div class="bg-saffron-500 h-2 rounded-full" style="width: ${pct}%"></div>
               </div>
               <span class="text-xs font-medium text-gray-500">${pct}%</span>
@@ -544,7 +571,7 @@
       timelineContainer.innerHTML = '';
       if (!Array.isArray(milestones)) return;
 
-      milestones.forEach((item, index) => {
+      milestones.forEach((item) => {
         let badgeColor = 'bg-gray-100 text-gray-700 border-gray-200';
         if (item.priority === 'high') badgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
         if (item.priority === 'medium') badgeColor = 'bg-amber-50 text-amber-700 border-amber-200';
@@ -553,13 +580,13 @@
         const step = document.createElement('div');
         step.className = 'relative flex items-start gap-4 group';
         step.innerHTML = `
-          <div class="absolute -left-[31px] md:-left-[39px] mt-1.5 w-4 h-4 rounded-full bg-white border-4 border-saffron-500 group-hover:scale-125 transition"></div>
+          <div class="absolute -left-[31px] md:-left-[39px] mt-1.5 w-4 h-4 rounded-full bg-white border-4 border-saffron-500 group-hover:scale-125 transition" aria-hidden="true"></div>
           <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <span class="text-xs font-semibold text-saffron-600 uppercase tracking-wider block">
                 ${item.daysBeforeEvent} Days Before Event (${escapeHtml(item.date)})
               </span>
-              <h4 class="font-bold text-gray-900 text-base mt-0.5">${escapeHtml(item.task)}</h4>
+              <h3 class="font-bold text-gray-900 text-base mt-0.5">${escapeHtml(item.task)}</h3>
             </div>
             <span class="self-start sm:self-center text-xs font-semibold px-2.5 py-1 rounded-full border capitalize ${badgeColor}">
               ${escapeHtml(item.priority)} priority
@@ -601,7 +628,7 @@
 
         card.innerHTML = `
           <h3 class="font-bold text-gray-900 text-lg mb-3 flex items-center gap-2">
-            <span>🏷️</span> ${escapeHtml(category)}
+            <span aria-hidden="true">🏷️</span> ${escapeHtml(category)}
           </h3>
           <div class="divide-y divide-gray-50">
             ${vendorItems}
@@ -692,6 +719,7 @@
               <h4 class="font-bold text-gray-900 text-base leading-snug">${escapeHtml(v.name)}</h4>
               ${ratingDisplay}
             </div>
+            <p class="text-xs text-gray-500 leading-relaxed mb-4">${escapeHtml(v.address)}</p>
             <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-saffron-600 font-semibold">
               <span>Verified Venue</span>
               <span>View on Map ↗</span>
@@ -738,7 +766,7 @@
       const wrapper = document.createElement('div');
       wrapper.className = 'flex items-start gap-2 max-w-[88%]';
       wrapper.innerHTML = `
-        <div class="w-6 h-6 rounded-full bg-saffron-100 text-saffron-700 flex-shrink-0 flex items-center justify-center text-xs mt-1">
+        <div class="w-6 h-6 rounded-full bg-saffron-100 text-saffron-700 flex-shrink-0 flex items-center justify-center text-xs mt-1" aria-hidden="true">
           🎉
         </div>
         <div class="assistant-content bg-gray-100 text-gray-800 rounded-2xl rounded-tl-sm px-4 py-2.5 leading-relaxed text-sm whitespace-pre-wrap"></div>
@@ -825,35 +853,39 @@
   <!-- Sliding Chat Panel (350px-380px wide, full height) -->
   <div
     id="chatPanel"
+    role="dialog"
+    aria-label="RevelPlan Chat Assistant"
+    aria-modal="false"
     class="fixed inset-y-0 right-0 z-50 w-full sm:w-[360px] bg-white shadow-2xl border-l border-gray-200 transform translate-x-full transition-transform duration-300 flex flex-col justify-between"
   >
     <!-- Header -->
     <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-orange-50/50">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-saffron-500 text-white flex items-center justify-center text-sm font-bold shadow-sm">
+        <div class="w-8 h-8 rounded-full bg-saffron-500 text-white flex items-center justify-center text-sm font-bold shadow-sm" aria-hidden="true">
           🎉
         </div>
         <div>
-          <h3 class="font-bold text-gray-900 text-sm leading-tight">RevelPlan Assistant</h3>
+          <h2 class="font-bold text-gray-900 text-sm leading-tight">RevelPlan Assistant</h2>
           <span class="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
             Online & Streaming
           </span>
         </div>
       </div>
       <button
         id="closeChatBtn"
+        type="button"
         class="text-gray-400 hover:text-gray-600 text-2xl leading-none p-1 rounded-lg hover:bg-gray-100 transition"
-        aria-label="Close chat"
+        aria-label="Close chat assistant"
       >
         &times;
       </button>
     </div>
 
     <!-- Messages History -->
-    <div id="chatMessages" class="flex-grow p-4 overflow-y-auto space-y-3 custom-scrollbar">
+    <div id="chatMessages" class="flex-grow p-4 overflow-y-auto space-y-3 custom-scrollbar" aria-live="polite">
       <div class="flex items-start gap-2 max-w-[88%]">
-        <div class="w-6 h-6 rounded-full bg-saffron-100 text-saffron-700 flex-shrink-0 flex items-center justify-center text-xs mt-1">
+        <div class="w-6 h-6 rounded-full bg-saffron-100 text-saffron-700 flex-shrink-0 flex items-center justify-center text-xs mt-1" aria-hidden="true">
           🎉
         </div>
         <div class="bg-gray-100 text-gray-800 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm leading-relaxed">
@@ -864,6 +896,7 @@
 
     <!-- Input Area -->
     <form id="chatForm" class="p-3 border-t border-gray-100 bg-white flex items-center gap-2">
+      <label for="chatInput" class="sr-only">Ask RevelPlan Assistant</label>
       <input
         type="text"
         id="chatInput"
@@ -874,6 +907,7 @@
       <button
         type="submit"
         id="sendChatBtn"
+        aria-label="Send message"
         class="bg-saffron-500 hover:bg-saffron-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition active:scale-95 disabled:opacity-50"
       >
         Send
